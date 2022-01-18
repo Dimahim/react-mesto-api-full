@@ -1,0 +1,14 @@
+.form__field-error {
+  display: block;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 15px;
+  color: #FF0000;
+  padding: 0;
+  padding-top: 5px;
+  height: 35px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  opacity: 0;
+}

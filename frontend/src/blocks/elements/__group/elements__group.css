@@ -1,0 +1,14 @@
+.elements__group {
+  background-image: url(../../../images/Vector3.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: white;
+  border: none;
+  width: 24px;
+  height: 19px;
+  margin-bottom: 3px;
+}
+.elements__group:hover {
+  cursor: pointer;
+  opacity: 0.5;
+}

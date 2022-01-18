@@ -1,0 +1,24 @@
+.form__field {
+  width: 358px;
+  border: none;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 13px;
+  font-family:  'Inter', Arial, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 1.21px;
+  color: #000000;
+  
+  
+  
+}
+
+
+@media screen and (max-width: 591px) {
+  .form__field {
+    width: 238px;
+    
+}
+}
