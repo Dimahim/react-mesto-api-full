@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { errors, celebrate, Joi } = require('celebrate');
@@ -11,6 +12,17 @@ const app = express();
 const { PORT = 3000 } = process.env;
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/notFoundError');
+
+// Разрешаем доступ с определённых источников.
+const allowedCors = [
+  'https://domain.mesto.students.nomoredomains.rocks',
+  'http://domain.mesto.students.nomoredomains.rocks',
+  'localhost:3000',
+];
+
+app.use(cors({
+  origin: allowedCors,
+}));
 
 // подключаемся к серверу mongo
 mongoose.connect('mongodb://localhost:27017/mestodb').catch((err) => console.log(err));
