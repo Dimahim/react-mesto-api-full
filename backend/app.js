@@ -1,3 +1,5 @@
+require('dotenv').config(); // загружаем переменные среды .env
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
