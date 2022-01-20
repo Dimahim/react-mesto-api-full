@@ -35,6 +35,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Мидлвер логи запросов.
 app.use(requestLogger);
 
+// Для тестирования падения сервера
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
 // Логин
 app.post('/signin', celebrate({
   body: Joi.object().keys({
