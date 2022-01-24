@@ -16,21 +16,17 @@ const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/notFoundError');
 
 // Разрешаем доступ с определённых источников.
-const allowedCors = [
-  'https://domain.mesto.students.nomoredomains.rocks',
-  'http://domain.mesto.students.nomoredomains.rocks',
-  'http://localhost:3000',
-];
+// const allowedCors = [
+//   'https://domain.mesto.students.nomoredomains.rocks',
+//   'http://domain.mesto.students.nomoredomains.rocks',
+//   'http://localhost:3000',
+// ];
 
 app.use(function(req, res, next) {
-  const { origin } = req.headers; // Сохраняем источник запроса в переменную origin
-  // проверяем, что источник запроса есть среди разрешённых
-  if (allowedCors.includes(origin)) {
-    // устанавливаем заголовок, который разрешает браузеру запросы с этого источника
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-
-  next();
+  const { origin } = req.headers;
+  // устанавливаем заголовок, который разрешает браузеру запросы из любого источника
+  res.header('Access-Control-Allow-Origin', "*");
+    next();
 });
 // app.use(cors({
 //   origin: allowedCors,
