@@ -1,7 +1,7 @@
 require('dotenv').config(); // загружаем переменные среды .env
 
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { errors, celebrate, Joi } = require('celebrate');
@@ -22,9 +22,19 @@ const allowedCors = [
   'http://localhost:3000',
 ];
 
-app.use(cors({
-  origin: allowedCors,
-}));
+app.use(function(req, res, next) {
+  const { origin } = req.headers; // Сохраняем источник запроса в переменную origin
+  // проверяем, что источник запроса есть среди разрешённых
+  if (allowedCors.includes(origin)) {
+    // устанавливаем заголовок, который разрешает браузеру запросы с этого источника
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
+  next();
+});
+// app.use(cors({
+//   origin: allowedCors,
+// }));
 
 // подключаемся к серверу mongo
 mongoose.connect('mongodb://localhost:27017/mestodb').catch((err) => console.log(err));
