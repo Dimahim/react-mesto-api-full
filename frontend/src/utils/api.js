@@ -15,23 +15,36 @@
 
   // Получение данных пользователя
   getUserInfo() {
+    const token = (localStorage.getItem('jwt'));
+    console.log(token)
     return fetch(`${this._baseUrl}users/me`, {
-      headers: this._headers
+      headers:{ 
+        ...this._headers,
+        Authorization: `Bearer ${token}`,
+      }
     }).then(this._getResponse);
   }
 
   // Получение данных карточек
   getCardsInfo() {
+    const token = (localStorage.getItem('jwt'));
     return fetch(`${this._baseUrl}cards`, { 
-      headers: this._headers
+      headers:{ 
+        ...this._headers,
+        Authorization: `Bearer ${token}`,
+      }
     }).then(this._getResponse);
   }
   
    // Добавление карточек
   postNewCard(newCard) {
+    // const token = (localStorage.getItem('jwt'));
     return fetch(`${this._baseUrl}cards`, {
       method: 'POST',
-      headers: this._headers,
+      headers:{ 
+        ...this._headers,
+        // Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         name: newCard.name,
         link: newCard.link
@@ -106,22 +119,23 @@
 
 }
 
-//Создаем экземпляр класса стокеном
+//Создаем экземпляр класса 
+
+const api = new Api({
+  baseUrl: 'https://domain.mesto.students.nomoredomains.rocks/',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    //  authorization: '7a991412818d228471fa20fcae5b3e6b56d9de347377806a4f0253577b80e1b4',
+  }
+});
 
 // const api = new Api({
-//   baseUrl: 'https://backend.mesto.student.nomoredomains.rocks/',
+//   baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-28/',
 //   headers: {
-//     'Accept': 'application/json',
+//     authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
 //     'Content-Type': 'application/json'
 //   }
 // });
-
-const api = new Api({
-  baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-28/',
-  headers: {
-    authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
-    'Content-Type': 'application/json'
-  }
-});
 
 export default api;
