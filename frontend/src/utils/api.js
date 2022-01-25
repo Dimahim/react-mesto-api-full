@@ -128,9 +128,8 @@
 const api = new Api({
   baseUrl: 'https://domain.mesto.students.nomoredomains.rocks/',
   headers: {
-    // 'Accept': 'application/json',
     'Content-Type': 'application/json',
-    //  authorization: '7a991412818d228471fa20fcae5b3e6b56d9de347377806a4f0253577b80e1b4',
+    
   }
 });
 
