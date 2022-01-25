@@ -50,22 +50,26 @@ function App() {
 
   //Получаем данные пользователя и карточки
   useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCardsInfo()])
-    .then(([userInfo, cards]) => {   
-      setCurrentUser(userInfo); // --- данные профиля
-      setCards(cards); // -- данные карточки
-  })
-  .catch((err) => {
-      console.log(`${err}`);
-  });
-}, []);
+    if (localStorage.getItem('jwt')) {
+      const token = localStorage.getItem('jwt');
+
+      Promise.all([api.getUserInfo(token), api.getCardsInfo(token)])
+      .then(([userInfo, cards]) => {   
+        setCurrentUser(userInfo); // --- данные профиля
+        setCards(cards); // -- данные карточки
+    })
+    .catch((err) => {
+        console.log(`${err}`);
+    });
+} 
+}, [loggedIn]);
 
  //Токен если есть устанавливаем loggedIn
   useEffect(() => {
     if (localStorage.getItem('jwt')) {
-      const jwt = localStorage.getItem('jwt');
-
-      tokenCheck(jwt)
+      const token = localStorage.getItem('jwt');
+      
+      tokenCheck(token)
         .then((res) => {
           if(res) {
             setLoggedIn(true);
