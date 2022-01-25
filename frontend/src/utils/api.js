@@ -126,7 +126,7 @@
 //Создаем экземпляр класса 
 
 const api = new Api({
-  baseUrl: 'https://domain.mesto.students.nomoredomains.rocks/',
+  baseUrl: 'https://domain.mesto.students.nomoredomains.rocks/api/',
   headers: {
     'Content-Type': 'application/json',
     
