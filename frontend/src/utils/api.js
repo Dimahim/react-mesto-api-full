@@ -16,11 +16,10 @@
   // Получение данных пользователя
   getUserInfo() {
     const token = (localStorage.getItem('jwt'));
-    console.log(token)
     return fetch(`${this._baseUrl}users/me`, {
       headers:{ 
         ...this._headers,
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
       }
     }).then(this._getResponse);
   }
@@ -31,14 +30,14 @@
     return fetch(`${this._baseUrl}cards`, { 
       headers:{ 
         ...this._headers,
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
       }
     }).then(this._getResponse);
   }
   
    // Добавление карточек
   postNewCard(newCard) {
-    // const token = (localStorage.getItem('jwt'));
+    const token = (localStorage.getItem('jwt'));
     return fetch(`${this._baseUrl}cards`, {
       method: 'POST',
       headers:{ 
@@ -126,6 +125,7 @@ const api = new Api({
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
+    Authorization: `Bearer ${`token`}`
     //  authorization: '7a991412818d228471fa20fcae5b3e6b56d9de347377806a4f0253577b80e1b4',
   }
 });
