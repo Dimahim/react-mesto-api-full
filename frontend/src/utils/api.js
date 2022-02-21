@@ -14,23 +14,23 @@
   }
 
   // Получение данных пользователя
-  getUserInfo(token) {
-    // const token = (localStorage.getItem('jwt'));
+  getUserInfo() {
     return fetch(`${this._baseUrl}users/me`, {
+      method: "GET",
       headers:{ 
         ...this._headers,
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
       }
     }).then(this._getResponse);
   }
 
   // Получение данных карточек
-  getCardsInfo(token) {
-    // const token = (localStorage.getItem('jwt'));
+  getCardsInfo() {
     return fetch(`${this._baseUrl}cards`, { 
+      method: "GET",
       headers:{ 
         ...this._headers,
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
       }
     }).then(this._getResponse);
   }
@@ -42,7 +42,6 @@
 
    // Добавление карточек
   postNewCard(newCard) {
-    // const token = (localStorage.getItem('jwt'));
     return fetch(`${this._baseUrl}cards`, {
       method: 'POST',
       headers:{ 
@@ -126,7 +125,8 @@
 //Создаем экземпляр класса 
 
 const api = new Api({
-  baseUrl: 'https://domain.mesto.students.nomoredomains.rocks/api/',
+  // baseUrl: 'https://domain.mesto.students.nomoredomains.rocks/api/',
+  baseUrl: 'http://51.250.0.26/api/',
   headers: {
     'Content-Type': 'application/json',
     

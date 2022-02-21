@@ -19,7 +19,7 @@ function Login({ handleLogin }) {
     <>
       <Header 
         headerText="Регистрация" 
-        link="/sign-up" 
+        link="/signup" 
       />
       <div className="authorization">
         <form onSubmit={handleSubmit}
