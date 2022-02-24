@@ -62,10 +62,10 @@ app.post('/signup', celebrate({
 }), createUser);
 
 // подключаем роуты пользователя
-app.use('/api/', auth, routerUser);
+app.use('/', auth, routerUser);
 
 // получаем роуты карточек
-app.use('/api/', auth, routerCards);
+app.use('/', auth, routerCards);
 
 // обработка несуществующего роута
 app.use('*', auth, (req, res, next) => {
