@@ -9,7 +9,7 @@ const {
 } = require('../controllers/cards');
 
 // Получаем все карточки
-router.get('/cards', getCards);
+router.get('/api/cards', getCards);
 
 // Создаем карточку
 router.post('/cards', celebrate({
