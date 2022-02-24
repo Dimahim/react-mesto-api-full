@@ -9,10 +9,10 @@ const {
 } = require('../controllers/cards');
 
 // Получаем все карточки
-router.get('/api/cards', getCards);
+router.get('/cards', getCards);
 
 // Создаем карточку
-router.post('/api/cards', celebrate({
+router.post('/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().pattern(
@@ -22,21 +22,21 @@ router.post('/api/cards', celebrate({
 }), createCard);
 
 // Удаляем карточку
-router.delete('/api/cards/:cardId', celebrate({
+router.delete('/cards/:cardId', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().length(24).hex(),
   }),
 }), deleteCard);
 
 // Поставить лайк карточке
-router.put('/api/cards/:cardId/likes', celebrate({
+router.put('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().length(24).hex(),
   }),
 }), putLike);
 
 // Убрать лайк с карточки
-router.delete('/api/cards/:cardId/likes', celebrate({
+router.delete('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().length(24).hex(),
   }),

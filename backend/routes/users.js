@@ -10,20 +10,20 @@ const {
 } = require('../controllers/users');
 
 // Возвращаем всех пользователей
-router.get('/api/users', getUsers);
+router.get('/users', getUsers);
 
 // Получаем данные пользователя
-router.get('/api/users/me', getMyProfile);
+router.get('/users/me', getMyProfile);
 
 // Возвращаем пользователя по id
-router.get('/api/users/:id', celebrate({
+router.get('/users/:id', celebrate({
   body: Joi.object().keys({
     id: Joi.string().required().length(24).hex(),
   }),
 }), getUserID);
 
 // Обновляем профиль
-router.patch('/api/users/me', celebrate({
+router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
@@ -31,7 +31,7 @@ router.patch('/api/users/me', celebrate({
 }), updateUser);
 
 // Обновляем аватар
-router.patch('/api/users/me/avatar', celebrate({
+router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().required()
       .pattern(
