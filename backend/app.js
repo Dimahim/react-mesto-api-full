@@ -43,14 +43,14 @@ app.get('/crash-test', () => {
 });
 
 // Логин
-app.post('/signin', celebrate({
+app.post('/api/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), login);
 // Создание пользователя
-app.post('/signup', celebrate({
+app.post('/api/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
@@ -62,10 +62,10 @@ app.post('/signup', celebrate({
 }), createUser);
 
 // подключаем роуты пользователя
-app.use('/', auth, routerUser);
+app.use('/api/', auth, routerUser);
 
 // получаем роуты карточек
-app.use('/', auth, routerCards);
+app.use('/api/', auth, routerCards);
 
 // обработка несуществующего роута
 app.use('*', auth, (req, res, next) => {

@@ -12,7 +12,7 @@ const {
 router.get('/api/cards', getCards);
 
 // Создаем карточку
-router.post('/cards', celebrate({
+router.post('/api/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().pattern(
@@ -22,21 +22,21 @@ router.post('/cards', celebrate({
 }), createCard);
 
 // Удаляем карточку
-router.delete('/cards/:cardId', celebrate({
+router.delete('/api/cards/:cardId', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().length(24).hex(),
   }),
 }), deleteCard);
 
 // Поставить лайк карточке
-router.put('/cards/:cardId/likes', celebrate({
+router.put('/api/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().length(24).hex(),
   }),
 }), putLike);
 
 // Убрать лайк с карточки
-router.delete('/cards/:cardId/likes', celebrate({
+router.delete('/api/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().length(24).hex(),
   }),
