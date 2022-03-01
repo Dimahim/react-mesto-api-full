@@ -19,8 +19,9 @@ const NotFoundError = require('./errors/notFoundError');
 const allowedCors = [
   'https://domain.mesto.students.nomoredomains.rocks',
   'http://domain.mesto.students.nomoredomains.rocks',
-  'http://localhost:3000/',
-  'http://localhost:3000/sign-in',
+  'http://localhost:3000',
+  '*',
+
 ];
 
 app.use(cors({
