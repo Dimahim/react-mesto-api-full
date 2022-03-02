@@ -17,17 +17,18 @@ const NotFoundError = require('./errors/notFoundError');
 
 // Разрешаем доступ с определённых источников.
 const allowedCors = [
-  'https://domain.mesto.students.nomoredomains.rocks',
-  'http://domain.mesto.students.nomoredomains.rocks',
-  'https://backend.mesto.student.nomoredomains.rocks',
-  'http://backend.mesto.student.nomoredomains.rocks',
-  'http://localhost:3000',
+  'https://domain.mesto.students.nomoredomains.rocks/',
+  'http://domain.mesto.students.nomoredomains.rocks/',
+  'https://backend.mesto.student.nomoredomains.rocks/',
+  'http://backend.mesto.student.nomoredomains.rocks/',
+  'http://localhost:3000/',
   '*',
 
 ];
 
 app.use(cors({
   origin: allowedCors,
+  credentials: true,
 }));
 
 // подключаемся к серверу mongo
