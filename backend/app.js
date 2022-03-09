@@ -6,6 +6,7 @@ const { celebrate, Joi, errors } = require('celebrate');
 const { PORT = 3000 } = process.env;
 const app = express();
 require('dotenv').config();
+const cors = require('cors');
 const { login, logout } = require('./controllers/login');
 const { createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -15,7 +16,20 @@ const allowedOrigins = require('./middlewares/cors');
 const { router, isUrl } = require('./routes/cards');
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
+const allowedCors = [
+  'https://domain.mesto.students.nomoredomains.rocks',
+  'http://domain.mesto.students.nomoredomains.rocks',
+  'domain.mesto.students.nomoredomains.rocks',
+  'https://backend.mesto.student.nomoredomains.rocks',
+  'http://backend.mesto.student.nomoredomains.rocks',
+  'http://localhost:3000',
+  'https://localhost:3000',
+  'localhost:3000',
+];
 
+app.use(cors({
+  origin: allowedCors,
+}));
 app.use(express.json());
 app.use(express.urlencoded({
   extended: true,
