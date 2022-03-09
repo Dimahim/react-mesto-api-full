@@ -1,4 +1,3 @@
-// Мидлвер для запросов и ошибок
 const winston = require('winston');
 const expressWinston = require('express-winston');
 
@@ -17,6 +16,6 @@ const errorLogger = expressWinston.errorLogger({
 });
 
 module.exports = {
-  requestLogger,
   errorLogger,
+  requestLogger,
 };

@@ -1,45 +1,47 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 const {
   createCard,
-  getCards,
+  getAllCards,
   deleteCard,
-  putLike,
-  removeLike,
+  likeCard,
+  dislikeCard,
 } = require('../controllers/cards');
 
-// Получаем все карточки
-router.get('/cards', getCards);
+const isUrl = (value) => {
+  const result = validator.isURL(value);
+  if (result) {
+    return value;
+  }
+  throw new Error('URL validation error');
+};
 
-// Создаем карточку
-router.post('/cards', celebrate({
+router.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(
-      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/,
-    ),
+    link: Joi.string().required().custom(isUrl),
   }),
 }), createCard);
 
-// Удаляем карточку
-router.delete('/cards/:cardId', celebrate({
+router.get('/', getAllCards);
+
+router.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).hex(),
+    cardId: Joi.string().hex().length(24),
   }),
 }), deleteCard);
 
-// Поставить лайк карточке
-router.put('/cards/:cardId/likes', celebrate({
+router.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).hex(),
+    cardId: Joi.string().hex().length(24),
   }),
-}), putLike);
+}), likeCard);
 
-// Убрать лайк с карточки
-router.delete('/cards/:cardId/likes', celebrate({
+router.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).hex(),
+    cardId: Joi.string().hex().length(24),
   }),
-}), removeLike);
+}), dislikeCard);
 
-module.exports = router;
+module.exports = { router, isUrl };

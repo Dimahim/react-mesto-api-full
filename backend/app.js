@@ -1,98 +1,69 @@
-require('dotenv').config(); // загружаем переменные среды .env
-
 const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const { errors, celebrate, Joi } = require('celebrate');
-const routerUser = require('./routes/users');
-const routerCards = require('./routes/cards');
-const { errorLogger, requestLogger } = require('./middlewares/logger');
-const auth = require('./middlewares/auth');
+const cookieParser = require('cookie-parser');
+const { celebrate, Joi, errors } = require('celebrate');
 
-const app = express();
 const { PORT = 3000 } = process.env;
-const { login, createUser } = require('./controllers/users');
-const NotFoundError = require('./errors/notFoundError');
+const app = express();
+require('dotenv').config();
+const { login, logout } = require('./controllers/login');
+const { createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+const allowedOrigins = require('./middlewares/cors');
+const { router, isUrl } = require('./routes/cards');
 
-// Разрешаем доступ с определённых источников.
-const allowedCors = [
-  'https://domain.mesto.students.nomoredomains.rocks',
-  'http://domain.mesto.students.nomoredomains.rocks',
-  'http://localhost:3000',
-  '*',
+mongoose.connect('mongodb://localhost:27017/mestodb');
 
-];
-
-app.use(cors({
-  origin: allowedCors,
-  credentials: true,
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true,
 }));
-
-// подключаемся к серверу mongo
-mongoose.connect('mongodb://localhost:27017/mestodb').catch((err) => console.log(err));
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Мидлвер логи запросов.
+app.use(cookieParser());
 app.use(requestLogger);
 
-// Для тестирования падения сервера
+app.use(allowedOrigins);
+
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
 
-// Логин
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), login);
-// Создание пользователя
+app.post('/signout', logout);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(100),
-    avatar: Joi.string()
-      .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
+    avatar: Joi.string().custom(isUrl),
+    about: Joi.string().min(2).max(30),
   }),
 }), createUser);
 
-// подключаем роуты пользователя
-app.use('/', auth, routerUser);
+app.use(auth);
+app.use('/users', require('./routes/users'));
 
-// получаем роуты карточек
-app.use('/', auth, routerCards);
+app.use('/cards', router);
 
-// обработка несуществующего роута
-app.use('*', auth, (req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
-});
-
-// Мидлвер логи ошибок.
 app.use(errorLogger);
 
-// Обработчик ошибок
 app.use(errors());
 
-// Мидлвэр для обработки ошибок централизоапнно.
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({
-    message: statusCode === 500
-      ? 'На сервере произошла ошибка.'
-      : message,
-  });
-  next();
+app.get('*', (_req, _res, next) => {
+  const err = new Error('Запрашиваемый ресурс не найден');
+  err.statusCode = 404;
+
+  next(err);
 });
 
-// Слушаем порт
-app.listen(PORT, () => {
-  console.log(`Projeсt is listenning on port ${PORT}`);
-});
+app.use(errorHandler);
+
+app.listen(PORT);

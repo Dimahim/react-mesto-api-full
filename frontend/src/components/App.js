@@ -50,26 +50,24 @@ function App() {
 
   //Получаем данные пользователя и карточки
   useEffect(() => {
-    if (loggedIn) {
-      // const token = localStorage.getItem('jwt');
-
+   
       Promise.all([api.getUserInfo(), api.getCardsInfo()])
       .then(([userInfo, cards]) => {   
         setCurrentUser(userInfo); // --- данные профиля
         setCards(cards); // -- данные карточки
-    })
-    .catch((err) => {
+      })
+      .catch((err) => {
         console.log(`${err}`);
-    });
-} 
+      });
+    
 }, [loggedIn]);
 
  //Токен если есть устанавливаем loggedIn
   useEffect(() => {
     if (localStorage.getItem('jwt')) {
-      const token = localStorage.getItem('jwt');
-      
-      tokenCheck(token)
+      const jwt = localStorage.getItem('jwt');
+
+      tokenCheck(jwt)
         .then((res) => {
           if(res) {
             setLoggedIn(true);
@@ -101,7 +99,7 @@ function App() {
         if (res) {
           setIsAuth(true);
           openRegModal();
-          navigate('/signin');
+          navigate('/sign-in');
           
         }
       })
@@ -109,7 +107,7 @@ function App() {
         setIsAuth(false);
         openRegModal();
         console.log(`Произошла ошибка: ${err}`);
-        navigate('/signup');
+        navigate('/sign-up');
       });
   };
 
@@ -143,7 +141,7 @@ function App() {
     localStorage.removeItem('jwt');
     setLoggedIn(false);
     setIsAuth(false);
-    navigate('/signin');
+    navigate('/sign-in');
   };
 
 
@@ -301,9 +299,9 @@ function App() {
                 userLoginData={userLoginData}
             />}
           />  
-          <Route path="/signin" element={ <Login handleLogin={handleLogin}/> }/>
-          <Route path="/signup" element={<Register handleRegister={handleRegister} />}/>
-          <Route element={<Navigate to={!loggedIn ? "/signin" : "/"} />}/>
+          <Route path="/sign-in" element={ <Login handleLogin={handleLogin}/> }/>
+          <Route path="/sign-up" element={<Register handleRegister={handleRegister} />}/>
+          <Route element={<Navigate to={!loggedIn ? "/sign-in" : "/"} />}/>
         </Routes>
        
         <Footer />

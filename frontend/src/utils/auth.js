@@ -1,8 +1,7 @@
 // аутентификациz пользователя
 
-// const BASE_URL = 'https://auth.nomoreparties.co';
-// const BASE_URL = 'http://domain.mesto.students.nomoredomains.rocks/api';
-const BASE_URL = 'http://51.250.0.26/api';
+const BASE_URL = 'https://auth.nomoreparties.co';
+// const BASE_URL = 'http://backend.mesto.student.nomoredomains.rocks'
 
 const getResponse = (res) => {
   return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`)

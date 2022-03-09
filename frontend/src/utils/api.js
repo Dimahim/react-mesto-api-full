@@ -15,39 +15,31 @@
 
   // Получение данных пользователя
   getUserInfo() {
-    return fetch(`${this._baseUrl}users/me`, {
-      method: "GET",
-      headers:{ 
-        ...this._headers,
-        // Authorization: `Bearer ${token}`,
-      }
+    // const token = (localStorage.getItem('jwt'));
+    return fetch(`${this._baseUrl}/users/me`, {
+      headers: {
+				...this._headers,
+				// 'authorization':`Bearer ${token}`
+      },
     }).then(this._getResponse);
   }
 
   // Получение данных карточек
   getCardsInfo() {
-    return fetch(`${this._baseUrl}cards`, { 
-      method: "GET",
-      headers:{ 
-        ...this._headers,
-        // Authorization: `Bearer ${token}`,
-      }
+    // const token = (localStorage.getItem('jwt'));
+    return fetch(`${this._baseUrl}/cards`, { 
+      headers: {
+				...this._headers,
+				// 'authorization':`Bearer ${token}`
+      },
     }).then(this._getResponse);
   }
-
-  // Получение всех данных
-  getInitialData() {
-    return Promise.all([this.getUserInfo(), this.getCardsInfo()]);
-  }
-
+  
    // Добавление карточек
   postNewCard(newCard) {
-    return fetch(`${this._baseUrl}cards`, {
+    return fetch(`${this._baseUrl}/cards`, {
       method: 'POST',
-      headers:{ 
-        ...this._headers,
-        // Authorization: `Bearer ${token}`,
-      },
+      headers: this._headers,
       body: JSON.stringify({
         name: newCard.name,
         link: newCard.link
@@ -59,7 +51,7 @@
 
   // Редактирование профиля
   patchUserProfil(userInfo) {
-    return fetch(`${this._baseUrl}users/me`, { 
+    return fetch(`${this._baseUrl}/users/me`, { 
       method: 'PATCH',
       body: JSON.stringify({
         name: userInfo.name,
@@ -72,7 +64,7 @@
 
   // Смена аватара
   patchAvatarUser( avatarLink ) {
-    return fetch(`${this._baseUrl}users/me/avatar`, { 
+    return fetch(`${this._baseUrl}/users/me/avatar`, { 
       method: 'PATCH',
       body: JSON.stringify({
         avatar: avatarLink.avatar
@@ -84,7 +76,7 @@
 
   // Удаление карточки
   deleteCard(id) {
-    return fetch(`${this._baseUrl}cards/${id}`, {
+    return fetch(`${this._baseUrl}/cards/${id}`, {
       method: 'DELETE',
       headers: this._headers
     })
@@ -93,7 +85,7 @@
 
   // Поставить лайк
   putCardLike(id) {
-    return fetch(`${this._baseUrl}cards/likes/${id}`, {
+    return fetch(`${this._baseUrl}/cards/likes/${id}`, {
       method: 'PUT',
       headers: this._headers
     })
@@ -102,7 +94,7 @@
 
   // Удалить лайк:
   deleteCardLike(id) {
-    return fetch(`${this._baseUrl}cards/likes/${id}`, {
+    return fetch(`${this._baseUrl}/cards/likes/${id}`, {
       method: 'DELETE',
       headers: this._headers
     })
@@ -111,7 +103,7 @@
 
 // Лайк удалить или поставить
   changeLikeCardStatus(cardId, isLiked) {
-    return fetch(`${this._baseUrl}cards/likes/${cardId}`,
+    return fetch(`${this._baseUrl}/cards/likes/${cardId}`,
       {
         method: (isLiked ? "PUT" : "DELETE"),
         headers: this._headers
@@ -121,22 +113,30 @@
 
 
 }
+// const api = new Api({
+//   baseUrl: process.env.NODE_ENV === "production"
+//   ? "http://backend.mesto.student.nomoredomains.rocks"
+//   : "http://localhost:3000",
+//   headers: {
+//     "Content-Type": "application/json",
+    
+//   },
+// });
 
-//Создаем экземпляр класса 
 
 const api = new Api({
-  // baseUrl: 'https://domain.mesto.students.nomoredomains.rocks/api/',
-  baseUrl: 'http://51.250.0.26/api/',
+  baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-28',
   headers: {
-    'Content-Type': 'application/json',
-    
+    authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
+    'Content-Type': 'application/json'
   }
 });
 
+//Создаем экземпляр класса стокеном
 // const api = new Api({
-//   baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-28/',
+//   baseUrl: 'http://backend.mesto.student.nomoredomains.rocks',
 //   headers: {
-//     authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
+//     //authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
 //     'Content-Type': 'application/json'
 //   }
 // });

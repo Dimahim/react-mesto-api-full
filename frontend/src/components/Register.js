@@ -20,7 +20,7 @@ function Register({ handleRegister }) {
     <>
       <Header 
         headerText={'Войти'}
-        link="/signin" 
+        link="/sign-in" 
       />
       <div className="authorization">
         <form onSubmit={handleSubmit}
@@ -49,7 +49,7 @@ function Register({ handleRegister }) {
           <button className="authorization__button"
                   type="submit"
           >Зарегистрироваться</button>
-          <Link to="/signin"
+          <Link to="/sign-in"
                 className="authorization__login-text"
           >Уже зарегистрированы? Войти</Link>
         </form>

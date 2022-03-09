@@ -27,7 +27,7 @@ function Main({
       <Header 
         loggedIn={loggedIn}
         login={userLoginData}
-        link="/signin"
+        link="/sign-in"
         onClick={logout}
         headerText={'Выйти'}
       />
