@@ -124,21 +124,21 @@
 // });
 
 
-const api = new Api({
-  baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-28',
-  headers: {
-    authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
-    'Content-Type': 'application/json'
-  }
-});
-
-//Создаем экземпляр класса стокеном
 // const api = new Api({
-//   baseUrl: 'http://backend.mesto.student.nomoredomains.rocks',
+//   baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-28',
 //   headers: {
-//     //authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
+//     authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
 //     'Content-Type': 'application/json'
 //   }
 // });
+
+//Создаем экземпляр класса стокеном
+const api = new Api({
+  baseUrl: 'http://backend.mesto.student.nomoredomains.rocks',
+  headers: {
+    //authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
+    'Content-Type': 'application/json'
+  }
+});
 
 export default api;
