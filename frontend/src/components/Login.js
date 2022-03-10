@@ -1,57 +1,68 @@
-//  компонент авторизации пользователя с необходимыми стейт-переменными.
-import React, { useState } from "react";
-import Header from "./Header";
+import React from 'react';
+import Sign from './Sign';
 
-function Login({ handleLogin }) {
-  const [authData, setAuthData] = useState({email: '', password: ''});
+import { useFormWithValidation } from '../hooks/useFormWithValidation';
+
+const Login = ({ onAuthorization, onCheckToken }) => {
+
+  const {
+    values,
+    errors,
+    isValid,
+    handleChange,
+    resetForm
+  } = useFormWithValidation({});
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    handleLogin(authData);
-  }
-
-  function handleOnChange(evt) {
-    const { name, value } = evt.target;
-    setAuthData({ ...authData, [name]: value });
+    onAuthorization(values);
+    resetForm();
   }
 
   return (
-    <>
-      <Header 
-        headerText="Регистрация" 
-        link="/sign-up" 
+    <Sign
+      title="Вход"
+      buttonText="Войти"
+      isValid={isValid}
+      onSubmit={handleSubmit}
+    >
+      <input
+        className="form__input form__input_theme_dark"
+        type="email"
+        id="login-email"
+        aria-label="электронная почта"
+        placeholder="Email"
+        name="email"
+        required
+        maxLength="30"
+        value={values.email || ''}
+        onChange={handleChange}
       />
-      <div className="authorization">
-        <form onSubmit={handleSubmit}
-              className="authorization__wrapper">
-          <h3 className="authorization__title">Вход</h3>
-          <input type="email"
-                required
-                minLength="2"
-                maxLength="200"
-                name="email"
-                className="authorization__data"
-                value={authData.email}
-                onChange={handleOnChange}
-                placeholder="E-mail"
-          />
-          <input type="password"
-                required
-                minLength="2"
-                maxLength="200"
-                name="password"
-                className="authorization__data"
-                value={authData.password}
-                onChange={handleOnChange}
-                placeholder="Password"
-          />
-          <button className="authorization__button"
-                  type="submit"
-          >Войти</button>
-        </form>
-      </div>
-    </>
-  );
+      <span
+        className={errors.email ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id="login-email-error"
+      >
+        {errors.email}
+      </span>
+      <input
+        className="form__input form__input_theme_dark"
+        type="password"
+        id="login-password"
+        aria-label="пароль"
+        placeholder="Пароль"
+        name="password"
+        required
+        value={values.password || ''}
+        onChange={handleChange}
+      />
+      <span
+        className={errors.password ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id="login-password-error"
+      >
+        {errors.password}
+      </span>
+    </Sign>
+  )
 }
 
 export default Login;

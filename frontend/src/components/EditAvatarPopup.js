@@ -1,48 +1,59 @@
-import React, { useRef, useEffect } from 'react';
-import PopupWithForm from "./PopupWithForm";
+import React from 'react';
+import PopupWithForm from './PopupWithForm';
 
+import { useFormWithValidation } from '../hooks/useFormWithValidation';
 
-function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, buttonText }) {
-  //Реф для прямого доступа к DOM-элементу инпута и его значению
-  const avatarRef = useRef('');
+function EditAvatarPopup(props) {
 
-  //Очистка поля ввода 
-  useEffect(() => {
-    avatarRef.current.value = '';
-  }, [isOpen])
+  const {
+    values,
+    errors,
+    isValid,
+    handleChange,
+    resetForm
+  } = useFormWithValidation({});
 
-  //Обработчик сабмита формы аватара
-  function handleSubmit(event) {
-    event.preventDefault();
-// Значение инпута, полученное с помощью реф
-    onUpdateAvatar({
-      avatar: avatarRef.current.value 
-    });
+  function handleSubmit(evt) {
+    evt.preventDefault();
+    props.onUpdateAvatar(values);
   }
 
-  return(
-    <PopupWithForm // Попап смены аватара
-      isOpen={isOpen}
-      onClose={onClose}
-      buttonText ={buttonText}
-      title="Обновить аватар"
-      buttonName="Сохранить"
-      name="avatar"
-      onSubmit={handleSubmit}
-    >
-      <input 
-        type="url" 
-        name="avatar" 
-        id="avatar" 
-        className="form__field form__field_avatar" 
-        placeholder="Ссылка на аватар" 
-        ref={avatarRef} 
-        required
-        />
+  React.useEffect(() => {
+    resetForm();
+  }, [props.isOpen, resetForm])
 
-      <span 
-        className="form__field-error" 
-        id="avatar-error">Ошибка</span>
+  return (
+    <PopupWithForm
+      name="avatar"
+      title="Обновить аватар"
+      buttonText="Сохранить"
+      loadingButtonText="Сохранение..."
+      isOpen={props.isOpen}
+      onClose={props.onClose}
+      onSubmit={handleSubmit}
+      isDisabled={!isValid}
+      contentLabel="Форма редактирования аватара пользователя"
+      isLoadingData={props.isLoadingData}
+    >
+      <input
+        className={errors.avatar ? 'form__input form__input_error' : 'form__input'}
+        type="url"
+        id="avatar-url"
+        aria-label="ссылка на изображение"
+        placeholder="Ссылка на картинку"
+        name="avatar"
+        required
+        value={values.avatar || ''}
+        onChange={handleChange}
+      />
+      <span
+        className={errors.avatar ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id='avatar-url-error'
+        role="status"
+        aria-live="polite"
+      >
+        {errors.avatar}
+      </span>
     </PopupWithForm>
   )
 }

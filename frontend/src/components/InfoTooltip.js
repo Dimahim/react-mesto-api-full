@@ -1,28 +1,41 @@
-//компонент модального окна,который информирует пользователя об успешной (или не очень) регистрации.
-import React from "react";
-import loginSuccess from '../images/login-success.svg';
-import loginFailed from '../images/login-failed.svg';
+import React from 'react';
 
-function InfoTooltip({ isOpen, onClose, isRegSuccess, regFailed, regSuccess }) {
-  return(
-    <>
-      <div className={`popup ${isOpen && 'popup_opened'}`}>
-        <div className="popup__container popup__reg-modal">
-          <button type="button"
-                  className="popup__close-icon"
-                  onClick={onClose}
-          />
-          <img className="popup__image-reg-modal"
-              src={`${isRegSuccess ? loginSuccess : loginFailed}`}
-              alt="статус регистрации"
-          />
-          <p className="popup__reg-modal-text">
-            {`${isRegSuccess ? regSuccess : regFailed}`}
-          </p>
-        </div>
-      </div>
-    </>
-  );
+import successSignUpImg from '../images/sign-up/success-sign-up.svg'
+import notSuccessSignUpImg from '../images/sign-up/not-success-sign-up.svg'
+
+import Modal from 'react-modal';
+
+const InfoTooltip = (props) => {
+  return (
+    <Modal
+      isOpen={props.isOpen}
+      className="popup"
+      overlayClassName="popup__container"
+      contentLabel={props.contentLabel}
+      closeTimeoutMS={300}
+      aria={{
+        labelledby: "heading"
+      }}
+      onRequestClose={props.onClose}
+      shouldCloseOnOverlayClick={true}
+    >
+      <img
+        className="popup__icon"
+        src={props.isSuccess ? successSignUpImg : notSuccessSignUpImg}
+        alt={props.isSuccess ? 'иконка успешной регистрации' : 'иконка не успешной регистрации'}
+      />
+      <h3
+        className="popup__title"
+      >
+        {props.isSuccess ?
+          'Вы успешно зарегистрировались!'
+        :
+          'Что-то пошло не так! Пропробуйте ещё раз.'
+        }
+      </h3>
+      <button onClick={props.onClose} type="button" className="popup__close-button" aria-label="закрыть"></button>
+    </Modal>
+  )
 }
 
 export default InfoTooltip;

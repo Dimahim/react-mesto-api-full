@@ -1,88 +1,86 @@
-import React, { useEffect, useState, useContext  } from "react";
-import PopupWithForm from "./PopupWithForm";
-import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import React from 'react';
+import PopupWithForm from './PopupWithForm';
 
+import { useFormWithValidation } from '../hooks/useFormWithValidation';
 
-function EditProfilePopup({ isOpen, onClose, onUpdateUser, buttonText }) {
+import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
-  //Подписываемся на контекст
-  const currentUser = useContext(CurrentUserContext);
+function EditProfilePopup(props) {
 
-  //Cтейты имени и рода занятия
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const {
+    values,
+    errors,
+    isValid,
+    handleChange,
+    resetForm
+  } = useFormWithValidation({});
 
-  //Данные полей ввода после загрузки Апи
-  useEffect(() => {
-    setName(currentUser.name);
-    setDescription(currentUser.about);
-  }, [currentUser, isOpen])
+  const currentUser = React.useContext(CurrentUserContext);
 
-  //Функция изменения данных в полях ввода
-  function handleUserName(event) {
-    setName(event.target.value)
+  function handleSubmit(evt) {
+    evt.preventDefault();
+    props.onUpdateUser(values);
   }
 
-  //Функция для изменения должности
-  function handleUserDescription(event) {
-    setDescription(event.target.value)
-  }
-
-  //Обработчик сабмита формы
-  function handleSubmit(event) {
-    event.preventDefault();
-    //Передача значений управляемых компонентов во внешний обработчик
-    onUpdateUser({
-      name: name,
-      about: description
-    });
-
-  }
-  
+  React.useEffect(() => {
+    if (currentUser) {
+      resetForm(currentUser);
+    }
+  }, [currentUser, resetForm, props.isOpen]);
 
   return (
-    <PopupWithForm //Попап редактирования профиля
-      isOpen={isOpen}
-      onClose={onClose}
-      buttonText={buttonText}
+    <PopupWithForm
+      name="profile"
       title="Редактировать профиль"
-      buttonName="Сохранить"
-      name="edit-profile"
+      buttonText="Сохранить"
+      loadingButtonText="Загрузка..."
+      isOpen={props.isOpen}
+      onClose={props.onClose}
       onSubmit={handleSubmit}
+      isDisabled={!isValid}
+      contentLabel="Форма форма редактирования профиля пользователя"
+      isLoadingData={props.isLoadingData}
     >
-    
-      <input 
-        type="text" 
-        id="name" 
-        name="userName" 
-        className="form__field form__field_item_name" 
+      <input
+        className={errors.name ? 'form__input form__input_error' : 'form__input'}
+        type="text"
+        id="profile-name"
+        aria-label="имя"
         placeholder="Имя"
-        onChange={handleUserName}
+        name="name"
+        required
         minLength="2"
         maxLength="40"
-        value={name ? name : ''}
+        value={props.isLoadingInitialData ? 'Загрузка...' : values.name || ''}
+        onChange={handleChange}
       />
-
-      <span 
-        className="form__field-error" 
-        id="name-error">Ошибка</span> 
-
-      <input 
-        type="text"  
-        id="info" 
-        name="userJob" 
-        className="form__field form__field_item_job"  
-        placeholder="О себе"
-        onChange={handleUserDescription}
+      <span
+        className={errors.name ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id='profile-name-error'
+      >
+        {errors.name}
+      </span>
+      <input
+        className={errors.about ? 'form__input form__input_error' : 'form__input'}
+        type="text"
+        id="profile-about"
+        aria-label="подпись"
+        placeholder="Подпись"
+        name="about"
+        required
         minLength="2"
-        maxLength="100"
-        value={description ? description : ''}
-        />
-
-      <span 
-        className="form__field-error" 
-        id="info-error">Ошибка</span>  
-  </PopupWithForm>
-  );
+        maxLength="200"
+        value={props.isLoadingInitialData ? 'Загрузка...' : values.about || ''}
+        onChange={handleChange}
+      />
+      <span
+        className={errors.about ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id='profile-about-error'
+      >
+        {errors.about}
+      </span>
+    </PopupWithForm>
+  )
 }
+
 export default EditProfilePopup;

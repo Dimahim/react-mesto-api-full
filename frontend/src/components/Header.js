@@ -1,25 +1,88 @@
 import React from 'react';
-import logo from '../images/logo.svg';
-import { Link } from "react-router-dom";
+import logo from '../images/logo/mesto-logo.svg';
 
-function Header({ headerText, login, link, loggedIn, onClick }) {
-  // console.log(login)
+import { NavLink, useLocation } from 'react-router-dom';
+
+function Header({ loggedIn, onSingOut, authorizationUserEmail }) {
+
+  const location = useLocation();
+
+  const [menuIsOpen, setMenuIsOpen] = React.useState(false);
+
+  function handleToggleMenu() {
+    setMenuIsOpen(!menuIsOpen);
+  }
+
+  function handleSignOut() {
+    setMenuIsOpen(false);
+    onSingOut();
+  }
+
   return (
-    <header className="header">
-      <div className="header__wrapper">
-        <img className="header__logo" src={logo} alt="логотип" />
-        <div className="header__wrapper">
-          <p className="header__user-email">{login}</p>
-          <Link to={link}
-                onClick={onClick}
-                className={`${loggedIn && 'header__link_log'} header__link`}
+    <header className={loggedIn ? 'header header_row-reverse' : 'header'}>
+      {loggedIn &&
+        (
+          <div
+            className={menuIsOpen ? 'header__container header__container_opened' : 'header__container'}
           >
-            {headerText}
-          </Link>
-        </div>
+            <address
+              className="header__address"
+            >
+              {authorizationUserEmail && authorizationUserEmail}
+            </address>
+            <button
+              className="header__button"
+              type="button"
+              onClick={handleSignOut}
+            >
+              Выйти
+            </button>
+          </div>
+        )
+      }
+      <div
+        className="header__container-main"
+      >
+        <img className="header__logo" src={logo} alt="логотип сайта" />
+        {loggedIn &&
+          (
+            <button
+              className={menuIsOpen ? 'header__menu-button header__menu-button_opened' : 'header__menu-button'}
+              type="button"
+              aria-label="кнопка меню"
+              onClick={handleToggleMenu}
+            />
+          )
+        }
+        {!loggedIn &&
+          (<nav>
+            {location.pathname === '/sign-in' &&
+              (
+                <NavLink
+                  className="header__navlink"
+                  to="/sign-up"
+                >
+                  Регистрация
+                </NavLink>
+              )
+            }
+            {location.pathname === '/sign-up' &&
+              (
+                <NavLink
+                  className="header__navlink"
+                  to="/sign-in"
+                >
+                  Войти
+                </NavLink>
+              )
+            }
+          </nav>
+        )
+        }
       </div>
+
     </header>
-  );
+  )
 }
 
 export default Header;

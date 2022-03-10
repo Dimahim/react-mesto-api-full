@@ -1,44 +1,54 @@
-// аутентификациz пользователя
+class Auth {
+  constructor (options) {
+    this._url = options.baseUrl;
+    this._headers = options.headers;
+  }
 
-// const BASE_URL = 'https://auth.nomoreparties.co';
-const BASE_URL = 'http://backend.mesto.student.nomoredomains.rocks'
+  _handleOriginalResponse(res) {
+    if (!res.ok) {
+      return Promise.reject(`Error: ${res.status}`);
+    }
+    return res.json();
+  }
 
-const getResponse = (res) => {
-  return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`)
-};
+  register(data) {
+    return fetch(`${this._url}/signup`, {
+      method: 'POST',
+      headers: this._headers,
+      body: JSON.stringify({
+        password: data.password,
+        email: data.email
+      })
+    }).then(this._handleOriginalResponse)
+  }
 
-export const register = (email, password) => {
-  return fetch (`${BASE_URL}/signup`, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type':'application/json',
-    },
-    body: JSON.stringify({email, password})
-  })
-    .then((res) => getResponse(res));
-};
+  authorize(data) {
+    return fetch(`${this._url}/signin`, {
+      method: 'POST',
+      headers: this._headers,
+      body: JSON.stringify({
+        password: data.password,
+        email: data.email
+      })
+    }).then(this._handleOriginalResponse);
+  }
 
-export const login = (email, password) => {
-  return fetch (`${BASE_URL}/signin`, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type':'application/json',
-    },
-    body: JSON.stringify({ email, password })
-  })
-    .then((res) => getResponse(res));
-};
+  checkToken(token) {
+    return fetch(`${this._url}/users/me`, {
+      method: 'GET',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      }
+    }).then(this._handleOriginalResponse)
+  }
+}
 
-export const tokenCheck = (token) => {
-  return fetch (`${BASE_URL}/users/me`, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type':'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  })
-    .then((res) => getResponse(res));
-};
+const auth = new Auth({
+  baseUrl: 'http://backend.mesto.student.nomoredomains.rocks',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+export default auth;

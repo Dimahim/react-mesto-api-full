@@ -1,76 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import PopupWithForm from "./PopupWithForm";
+import React from 'react';
+import PopupWithForm from './PopupWithForm';
 
-function AddPlacePopup({ isOpen, onClose, onAddPlace, buttonText }) {
-  //Стейты для карточки имя и ссылка
-  const [cardTitle, setCardTitle] = useState('');
-  const [cardLink, setCardLink] = useState('');
+import { useFormWithValidation } from '../hooks/useFormWithValidation';
 
-  //Обработчик назвния
-  function handleCardTitle(event) {
-    setCardTitle(event.target.value)
+function AddPlacePopup(props) {
+
+  const {
+    values,
+    errors,
+    isValid,
+    handleChange,
+    resetForm
+  } = useFormWithValidation({});
+
+  function handleSubmit(evt) {
+    evt.preventDefault(evt);
+    props.onAddPlace(values);
   }
 
-  //Обработчик ссылки на картинку
-  function handleCardLink(event) {
-    setCardLink(event.target.value)
-  }
+  React.useEffect(() => {
+    resetForm();
+  }, [props.isOpen, resetForm])
 
-  //Обработчик сабмита формы т данные для апи
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    onAddPlace({
-      name: cardTitle,
-      link: cardLink
-    })
-  }
-
-  useEffect(() => {
-    setCardLink('')
-    setCardTitle('')
-  }, [isOpen])
-
-  return(
-    <PopupWithForm // Попап добавления карточки
-      isOpen={isOpen}
-        onClose={onClose}
-        buttonText={buttonText}
-        title="Новое место"
-        buttonName="Создать"
-        name="add-place"
-        onSubmit={handleSubmit}
-      > 
-        <input 
-          type="text" 
-          name="title" 
-          id="title" 
-          className="form__field form__field_item_title" 
-          placeholder="Название" 
-          minLength="2"
-          maxLength="30"
-          onChange={handleCardTitle}
-          value={ cardTitle || ''} 
-          required 
-          />
-
-        <span 
-          className="form__field-error" 
-          id="title-error">Ошибка</span>
-        <input 
-          type="url" 
-          name="link" id="link" 
-          className="form__field form__field_item_link" 
-          placeholder="Ссылка на картинку"  
-          onChange={handleCardLink}
-          value={cardLink ? cardLink : ''}
-          required 
-          />
-
-        <span 
-          className="form__field-error" 
-            id="link-error">Ошибка</span>
-      </PopupWithForm>   
+  return (
+    <PopupWithForm
+      name="photo"
+      title="Новое место"
+      buttonText="Создать"
+      loadingButtonText="Сохранение..."
+      isOpen={props.isOpen}
+      onClose={props.onClose}
+      onSubmit={handleSubmit}
+      isDisabled={!isValid}
+      contentLabel="Форма добавления фотокарточки"
+      isLoadingData={props.isLoadingData}
+    >
+      <input
+        className={errors.name ? 'form__input form__input_error' : 'form__input'}
+        type="text"
+        id="photo-title"
+        aria-label="подпись"
+        placeholder="Название"
+        name="name"
+        required
+        minLength="1"
+        maxLength="30"
+        value={values.name || ''}
+        onChange={handleChange}
+      />
+      <span
+        className={errors.name ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id='photo-title-error'
+        role="status"
+        aria-live="polite"
+      >
+        {errors.name}
+      </span>
+      <input
+        className={errors.link ? 'form__input form__input_error' : 'form__input'}
+        type="url"
+        id="photo-url"
+        aria-label="ссылка"
+        placeholder="Ссылка на картинку"
+        name="link"
+        required
+        value={values.link || ''}
+        onChange={handleChange}
+      />
+      <span
+        className={errors.link ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id='photo-url-error'
+        role="status"
+        aria-live="polite"
+      >
+        {errors.link}
+      </span>
+    </PopupWithForm>
   )
 }
 

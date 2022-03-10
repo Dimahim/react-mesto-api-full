@@ -1,143 +1,125 @@
-   // Класс Апи 
-  class Api {
-  constructor ({ baseUrl, headers }) {
-    this._baseUrl = baseUrl;
-    this._headers = headers;
+class Api {
+  constructor(options) {
+    this._url = options.baseUrl;
+    this._headers = options.headers
   }
 
-  // От сервера всегда проверяется на корректность
-  _getResponse(res) {
-    if (res.ok) {
-      return res.json();
+  _handleOriginalResponse(res) {
+    if (!res.ok) {
+      return Promise.reject(`Error: ${res.status}`);
     }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return res.json();
   }
 
-  // Получение данных пользователя
-  getUserInfo() {
-    // const token = (localStorage.getItem('jwt'));
-    return fetch(`${this._baseUrl}/users/me`, {
-      headers: {
-				...this._headers,
-				// 'authorization':`Bearer ${token}`
-      },
-    }).then(this._getResponse);
-  }
-
-  // Получение данных карточек
-  getCardsInfo() {
-    // const token = (localStorage.getItem('jwt'));
-    return fetch(`${this._baseUrl}/cards`, { 
-      headers: {
-				...this._headers,
-				// 'authorization':`Bearer ${token}`
-      },
-    }).then(this._getResponse);
-  }
-  
-   // Добавление карточек
-  postNewCard(newCard) {
-    return fetch(`${this._baseUrl}/cards`, {
-      method: 'POST',
-      headers: this._headers,
-      body: JSON.stringify({
-        name: newCard.name,
-        link: newCard.link
-      }),
-      
-    })
-    .then(this._getResponse);
-  }
-
-  // Редактирование профиля
-  patchUserProfil(userInfo) {
-    return fetch(`${this._baseUrl}/users/me`, { 
+  setUserAvatar(data, token) {
+    return fetch(`${this._url}/users/me/avatar`, {
       method: 'PATCH',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
       body: JSON.stringify({
-        name: userInfo.name,
-        about: userInfo.about
-      }),
-      headers: this._headers
-    })
-    .then(this._getResponse);
-  }
-
-  // Смена аватара
-  patchAvatarUser( avatarLink ) {
-    return fetch(`${this._baseUrl}/users/me/avatar`, { 
-      method: 'PATCH',
-      body: JSON.stringify({
-        avatar: avatarLink.avatar
-      }),
-      headers: this._headers,
-      
-    }).then(this._getResponse);
-  }
-
-  // Удаление карточки
-  deleteCard(id) {
-    return fetch(`${this._baseUrl}/cards/${id}`, {
-      method: 'DELETE',
-      headers: this._headers
-    })
-    .then(this._getResponse);
-  }
-
-  // Поставить лайк
-  putCardLike(id) {
-    return fetch(`${this._baseUrl}/cards/likes/${id}`, {
-      method: 'PUT',
-      headers: this._headers
-    })
-    .then(this._getResponse);
-  }
-
-  // Удалить лайк:
-  deleteCardLike(id) {
-    return fetch(`${this._baseUrl}/cards/likes/${id}`, {
-      method: 'DELETE',
-      headers: this._headers
-    })
-    .then(this._getResponse);
-  }
-
-// Лайк удалить или поставить
-  changeLikeCardStatus(cardId, isLiked) {
-    return fetch(`${this._baseUrl}/cards/likes/${cardId}`,
-      {
-        method: (isLiked ? "PUT" : "DELETE"),
-        headers: this._headers
+        avatar: data.avatar
       })
-      .then(this._getResponse);
+    }).then(this._handleOriginalResponse)
   }
 
+  changeLikeCardStatus(id, isLiked, token) {
+    if (isLiked) {
+      return this.deleteLike(id, token);
+    } else {
+      return this.setLike(id, token);
+    }
+  }
 
+  deleteLike(id, token) {
+    return fetch(`${this._url}/cards/likes/${id}`, {
+      method: 'DELETE',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
+    }).then(this._handleOriginalResponse)
+  }
+
+  setLike(id, token) {
+    return fetch(`${this._url}/cards/likes/${id}`, {
+      method: 'PUT',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
+    }).then(this._handleOriginalResponse)
+  }
+
+  deleteCard(id, token) {
+    return fetch(`${this._url}/cards/${id}`, {
+      method: 'DELETE',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
+    }).then(this._handleOriginalResponse)
+  }
+
+  postCard(data, token) {
+    return fetch(`${this._url}/cards`, {
+      method: 'POST',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name: data.name,
+        link: data.link
+      })
+    }).then(this._handleOriginalResponse)
+  }
+
+  setUserInfo(data, token) {
+    return fetch(`${this._url}/users/me`, {
+      method: 'PATCH',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name: data.name,
+        about: data.about
+      })
+    }).then(this._handleOriginalResponse)
+  }
+
+  getInitialData(token) {
+    return Promise.all([this.getUserInfo(token), this.getCards(token)]);
+  }
+
+  getCards(token) {
+    return fetch(`${this._url}/cards`, {
+      method: 'GET',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
+    }).then(this._handleOriginalResponse)
+  }
+
+  getUserInfo(token) {
+    return fetch(`${this._url}/users/me`, {
+      method: 'GET',
+      headers: {
+        ...this._headers,
+        Authorization: `Bearer ${token}`
+      },
+    }).then(this._handleOriginalResponse)
+  }
 }
-// const api = new Api({
-//   baseUrl: process.env.NODE_ENV === "production"
-//   ? "http://backend.mesto.student.nomoredomains.rocks"
-//   : "http://localhost:3000",
-//   headers: {
-//     "Content-Type": "application/json",
-    
-//   },
-// });
 
-
-// const api = new Api({
-//   baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-28',
-//   headers: {
-//     authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
-//     'Content-Type': 'application/json'
-//   }
-// });
-
-//Создаем экземпляр класса стокеном
 const api = new Api({
   baseUrl: 'http://backend.mesto.student.nomoredomains.rocks',
   headers: {
-    //authorization: 'b44b3d92-4c6d-4868-9fa0-516a17273e75',
-    'Content-Type': 'application/json'
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
   }
 });
 

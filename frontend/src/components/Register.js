@@ -1,61 +1,78 @@
-// Компонент регистрации пользователя
-import React, { useState } from "react";
-import Header from "./Header";
-import { Link } from "react-router-dom";
+import React from 'react';
+import Sign from './Sign';
 
-function Register({ handleRegister }) {
-  const [regData, setRegData] = useState({email: '', password: ''});
+import { useFormWithValidation } from '../hooks/useFormWithValidation';
+import { Link } from 'react-router-dom';
+
+const Register = ({ onRegistration }) => {
+
+  const linkMarkup = (
+    <p
+      className="form__paragraph"
+    >
+      Уже зарегистрированы? <Link className="form__link" to="/sign-in">Войти</Link>
+    </p>
+  )
+
+  const {
+    values,
+    errors,
+    isValid,
+    handleChange,
+    resetForm
+  } = useFormWithValidation({});
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    handleRegister(regData);
-  }
-
-  function handleOnChange(evt) {
-    const {name, value} = evt.target;
-    setRegData({ ...regData, [name]: value });
+    onRegistration(values);
+    resetForm();
   }
 
   return (
-    <>
-      <Header 
-        headerText={'Войти'}
-        link="/sign-in" 
+    <Sign
+      title="Регистрация"
+      buttonText="Зарегистрироваться"
+      isValid={isValid}
+      onSubmit={handleSubmit}
+      linkMarkup={linkMarkup}
+    >
+      <input
+        className="form__input form__input_theme_dark"
+        type="email"
+        id="login-email"
+        aria-label="электронная почта"
+        placeholder="Email"
+        name="email"
+        required
+        maxLength="30"
+        value={values.email || ''}
+        onChange={handleChange}
       />
-      <div className="authorization">
-        <form onSubmit={handleSubmit}
-              className="authorization__wrapper">
-          <h3 className="authorization__title">Регистрация</h3>
-          <input type="email"
-                required
-                minLength="2"
-                maxLength="100"
-                name="email"
-                className="authorization__data"
-                value={regData.email}
-                onChange={handleOnChange}
-                placeholder="E-mail"
-            />
-          <input type="password"
-                required
-                minLength="2"
-                maxLength="200"
-                name="password"
-                className="authorization__data"
-                value={regData.password}
-                onChange={handleOnChange}
-                placeholder="Password"
-          />
-          <button className="authorization__button"
-                  type="submit"
-          >Зарегистрироваться</button>
-          <Link to="/sign-in"
-                className="authorization__login-text"
-          >Уже зарегистрированы? Войти</Link>
-        </form>
-      </div>
-    </>
-  );
+      <span
+        className={errors.email ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id="login-email-error"
+      >
+        {errors.email}
+      </span>
+      <input
+        className="form__input form__input_theme_dark"
+        type="password"
+        id="login-password"
+        aria-label="пароль"
+        placeholder="Пароль"
+        name="password"
+        required
+        value={values.password || ''}
+        onChange={handleChange}
+      />
+      <span
+        className={errors.password ? 'form__input-error form__input-error_active' : 'form__input-error'}
+        id="login-password-error"
+      >
+        {errors.password}
+      </span>
+    </Sign>
+  )
 }
 
 export default Register;
