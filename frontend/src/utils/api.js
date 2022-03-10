@@ -15,9 +15,12 @@
 
   // Получение данных пользователя
   getUserInfo() {
+    // const token = (localStorage.getItem('jwt'));
     return fetch(`${this._baseUrl}/users/me`, {
-      headers: 	this._headers,
-    
+      headers: {
+				...this._headers,
+				// 'authorization':`Bearer ${token}`
+      },
     }).then(this._getResponse);
   }
 

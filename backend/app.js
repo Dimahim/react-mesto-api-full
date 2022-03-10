@@ -22,7 +22,6 @@ const allowedCors = [
   'http://localhost:3000',
   'localhost:3000',
   '*',
-
 ];
 
 app.use(cors({
