@@ -1,83 +1,98 @@
+require('dotenv').config(); // загружаем переменные среды .env
+
 const express = require('express');
-const mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');
-const { celebrate, Joi, errors } = require('celebrate');
-
-const { PORT = 3000 } = process.env;
-const app = express();
-require('dotenv').config();
 const cors = require('cors');
-const { login, logout } = require('./controllers/login');
-const { createUser } = require('./controllers/users');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const { errors, celebrate, Joi } = require('celebrate');
+const routerUser = require('./routes/users');
+const routerCards = require('./routes/cards');
+const { errorLogger, requestLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
-const errorHandler = require('./middlewares/errorHandler');
-const { requestLogger, errorLogger } = require('./middlewares/logger');
-const allowedOrigins = require('./middlewares/cors');
-const { router, isUrl } = require('./routes/cards');
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
+const app = express();
+const { PORT = 3000 } = process.env;
+const { login, createUser } = require('./controllers/users');
+const NotFoundError = require('./errors/notFoundError');
+
+// Разрешаем доступ с определённых источников.
 const allowedCors = [
   'https://domain.mesto.students.nomoredomains.rocks',
   'http://domain.mesto.students.nomoredomains.rocks',
-  'domain.mesto.students.nomoredomains.rocks',
-  'https://backend.mesto.student.nomoredomains.rocks',
-  'http://backend.mesto.student.nomoredomains.rocks',
   'http://localhost:3000',
-  'https://localhost:3000',
   'localhost:3000',
+  '*',
 ];
 
 app.use(cors({
   origin: allowedCors,
+  credentials: true,
 }));
-app.use(express.json());
-app.use(express.urlencoded({
-  extended: true,
-}));
-app.use(cookieParser());
+
+// подключаемся к серверу mongo
+mongoose.connect('mongodb://localhost:27017/mestodb').catch((err) => console.log(err));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Мидлвер логи запросов.
 app.use(requestLogger);
 
-app.use(allowedOrigins);
-
+// Для тестирования падения сервера
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
 
+// Логин
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), login);
-app.post('/signout', logout);
-
+// Создание пользователя
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    avatar: Joi.string().custom(isUrl),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(100),
+    avatar: Joi.string()
+      .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
   }),
 }), createUser);
 
-app.use(auth);
-app.use('/users', require('./routes/users'));
+// подключаем роуты пользователя
+app.use('/', auth, routerUser);
 
-app.use('/cards', router);
+// получаем роуты карточек
+app.use('/', auth, routerCards);
 
-app.use(errorLogger);
-
-app.use(errors());
-
-app.get('*', (_req, _res, next) => {
-  const err = new Error('Запрашиваемый ресурс не найден');
-  err.statusCode = 404;
-
-  next(err);
+// обработка несуществующего роута
+app.use('*', auth, (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
-app.use(errorHandler);
+// Мидлвер логи ошибок.
+app.use(errorLogger);
 
-app.listen(PORT);
+// Обработчик ошибок
+app.use(errors());
+
+// Мидлвэр для обработки ошибок централизоапнно.
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'На сервере произошла ошибка.'
+      : message,
+  });
+  next();
+});
+
+// Слушаем порт
+app.listen(PORT, () => {
+  console.log(`Projeсt is listenning on port ${PORT}`);
+});
