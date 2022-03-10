@@ -1,43 +1,34 @@
-// Роуты для пользователя.
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const {
-  getUserID,
-  getUsers,
-  updateUser,
-  updateAvatar,
-  getMyProfile,
+  getUser,
+  getCurrentUser,
+  getAllUsers,
+  editProfile,
+  editProfileAvatar,
 } = require('../controllers/users');
+const { isUrl } = require('./cards');
 
-// Возвращаем всех пользователей
-router.get('/users', getUsers);
+router.get('/', getAllUsers);
+router.get('/me', getCurrentUser);
 
-// Получаем данные пользователя
-router.get('/users/me', getMyProfile);
-
-// Возвращаем пользователя по id
-router.get('/users/:id', celebrate({
-  body: Joi.object().keys({
-    id: Joi.string().required().length(24).hex(),
+router.get('/:id', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24),
   }),
-}), getUserID);
+}), getUser);
 
-// Обновляем профиль
-router.patch('/users/me', celebrate({
+router.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
   }),
-}), updateUser);
+}), editProfile);
 
-// Обновляем аватар
-router.patch('/users/me/avatar', celebrate({
+router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required()
-      .pattern(
-        /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/,
-      ),
+    avatar: Joi.string().custom(isUrl),
   }),
-}), updateAvatar);
+}), editProfileAvatar);
 
 module.exports = router;
