@@ -1,32 +1,33 @@
 const mongoose = require('mongoose');
 
-const cardSchema = mongoose.Schema({
+const cardSchema = new mongoose.Schema({
   name: {
     type: String,
-    minlength: 2,
-    maxlegth: 30,
     required: true,
+    minlength: 2,
+    maxlength: 30,
   },
   link: {
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/g.test(v);
+      validator: function validate(v) {
+        return /^(https|http):\/\/(www\.)?[A-Za-z0-9-]*\.[A-Za-z0-9]{2}[A-Za-z0-9-._~:\\/?#[\]@!$&'()*+,;=]*#?$/.test(v);
       },
-      message: 'Ошибка валидации url адреса',
     },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
     required: true,
-  },
-  likes: [{
-    type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    default: [],
-  }],
+  },
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      default: [],
+      ref: 'user',
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

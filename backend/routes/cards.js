@@ -1,57 +1,45 @@
-const cardsRouter = require('express').Router();
-
+const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-
 const {
-  getCards,
   createCard,
+  getCards,
   deleteCard,
-  likeCard,
-  dislikeCard,
+  putLike,
+  removeLike,
 } = require('../controllers/cards');
 
-cardsRouter.get('/cards', getCards);
+// Получаем все карточки
+router.get('/cards', getCards);
 
-cardsRouter.post(
-  '/cards',
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required()
-        .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
-    }),
+// Создаем карточку
+router.post('/cards', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(
+      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/,
+    ),
   }),
-  createCard,
-);
+}), createCard);
 
-cardsRouter.delete(
-  '/cards/:cardId',
-  celebrate({
-    body: Joi.object().keys({
-      cardId: Joi.string().hex().length(24),
-    }),
+// Удаляем карточку
+router.delete('/cards/:cardId', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().required().length(24).hex(),
   }),
-  deleteCard,
-);
+}), deleteCard);
 
-cardsRouter.put(
-  '/cards/likes/:cardId',
-  celebrate({
-    body: Joi.object().keys({
-      cardId: Joi.string().hex().length(24),
-    }),
+// Поставить лайк карточке
+router.put('/cards/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().required().length(24).hex(),
   }),
-  likeCard,
-);
+}), putLike);
 
-cardsRouter.delete(
-  '/cards/likes/:cardId',
-  celebrate({
-    body: Joi.object().keys({
-      cardId: Joi.string().hex().length(24),
-    }),
+// Убрать лайк с карточки
+router.delete('/cards/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().required().length(24).hex(),
   }),
-  dislikeCard,
-);
+}), removeLike);
 
-module.exports = cardsRouter;
+module.exports = router;

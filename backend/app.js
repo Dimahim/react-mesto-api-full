@@ -1,115 +1,98 @@
+require('dotenv').config(); // загружаем переменные среды .env
+
 const express = require('express');
-const mongoose = require('mongoose');
-
-require('dotenv').config();
-
-const bodyParser = require('body-parser');
-
 const cors = require('cors');
-
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const { errors, celebrate, Joi } = require('celebrate');
-
+const routerUser = require('./routes/users');
+const routerCards = require('./routes/cards');
+const { errorLogger, requestLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
 
-const { createUser, login } = require('./controllers/users');
-
-const cardsRoutes = require('./routes/cards');
-const usersRoutes = require('./routes/users');
-
-const NotFoundError = require('./errors/not-found-error');
-
-const { requestLogger, errorLogger } = require('./middlewares/logger');
-
 const app = express();
+const { PORT = 3000 } = process.env;
+const { login, createUser } = require('./controllers/users');
+const NotFoundError = require('./errors/notFoundError');
 
+// Разрешаем доступ с определённых источников.
 const allowedCors = [
   'https://domain.mesto.students.nomoredomains.rocks',
   'http://domain.mesto.students.nomoredomains.rocks',
-  'https://backend.mesto.student.nomoredomains.rocks',
-  'http://backend.mesto.student.nomoredomains.rocks',
-  'http://localhost:3001',
   'http://localhost:3000',
+  'localhost:3000',
+  '*',
 ];
 
 app.use(cors({
   origin: allowedCors,
+  credentials: true,
 }));
 
-const { PORT = 3000 } = process.env;
-
-mongoose.connect('mongodb://localhost:27017/mestodb', {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-  useUnifiedTopology: true,
-});
+// подключаемся к серверу mongo
+mongoose.connect('mongodb://localhost:27017/mestodb').catch((err) => console.log(err));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Мидлвер логи запросов.
 app.use(requestLogger);
 
+// Для тестирования падения сервера
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
 
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8).max(30),
-    }),
+// Логин
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
   }),
-  login,
-);
-app.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required()
-        .pattern(new RegExp('^[A-Za-z0-9]{8,30}$')),
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string()
-        .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
-    }),
+}), login);
+// Создание пользователя
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(100),
+    avatar: Joi.string()
+      .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
   }),
-  createUser,
-);
+}), createUser);
 
-app.use(auth);
+// подключаем роуты пользователя
+app.use('/', auth, routerUser);
 
-app.use('/', usersRoutes);
-app.use('/', cardsRoutes);
+// получаем роуты карточек
+app.use('/', auth, routerCards);
 
-app.all('*', () => {
-  throw new NotFoundError('Запрашиваемый ресурс не найден');
+// обработка несуществующего роута
+app.use('*', auth, (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
+// Мидлвер логи ошибок.
 app.use(errorLogger);
 
+// Обработчик ошибок
 app.use(errors());
 
+// Мидлвэр для обработки ошибок централизоапнно.
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
-  if (err.kind === 'ObjectId') {
-    res.status(400).send({
-      message: 'Неверно переданы данные',
-    });
-  } else {
-    res.status(statusCode).send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  }
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'На сервере произошла ошибка.'
+      : message,
+  });
   next();
 });
 
+// Слушаем порт
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`); /* eslint-disable-line no-console */
+  console.log(`Projeсt is listenning on port ${PORT}`);
 });
