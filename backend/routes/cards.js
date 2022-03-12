@@ -1,45 +1,57 @@
-const router = require('express').Router();
+const cardsRouter = require('express').Router();
+
 const { celebrate, Joi } = require('celebrate');
+
 const {
-  createCard,
   getCards,
+  createCard,
   deleteCard,
-  putLike,
-  removeLike,
+  likeCard,
+  dislikeCard,
 } = require('../controllers/cards');
 
-// Получаем все карточки
-router.get('/cards', getCards);
+cardsRouter.get('/cards', getCards);
 
-// Создаем карточку
-router.post('/cards', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(
-      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/,
-    ),
+cardsRouter.post(
+  '/cards',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().required().min(2).max(30),
+      link: Joi.string().required()
+        .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
+    }),
   }),
-}), createCard);
+  createCard,
+);
 
-// Удаляем карточку
-router.delete('/cards/:cardId', celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).hex(),
+cardsRouter.delete(
+  '/cards/:cardId',
+  celebrate({
+    body: Joi.object().keys({
+      cardId: Joi.string().hex().length(24),
+    }),
   }),
-}), deleteCard);
+  deleteCard,
+);
 
-// Поставить лайк карточке
-router.put('/cards/:cardId/likes', celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).hex(),
+cardsRouter.put(
+  '/cards/likes/:cardId',
+  celebrate({
+    body: Joi.object().keys({
+      cardId: Joi.string().hex().length(24),
+    }),
   }),
-}), putLike);
+  likeCard,
+);
 
-// Убрать лайк с карточки
-router.delete('/cards/:cardId/likes', celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).hex(),
+cardsRouter.delete(
+  '/cards/likes/:cardId',
+  celebrate({
+    body: Joi.object().keys({
+      cardId: Joi.string().hex().length(24),
+    }),
   }),
-}), removeLike);
+  dislikeCard,
+);
 
-module.exports = router;
+module.exports = cardsRouter;

@@ -1,43 +1,50 @@
-// Роуты для пользователя.
-const router = require('express').Router();
+const usersRouter = require('express').Router();
+
 const { celebrate, Joi } = require('celebrate');
+
 const {
-  getUserID,
   getUsers,
-  updateUser,
+  getUserById,
+  getCurrentUser,
+  updateCurrentUser,
   updateAvatar,
-  getMyProfile,
 } = require('../controllers/users');
 
-// Возвращаем всех пользователей
-router.get('/users', getUsers);
+usersRouter.get('/users', getUsers);
 
-// Получаем данные пользователя
-router.get('/users/me', getMyProfile);
+usersRouter.get('/users/me', getCurrentUser);
 
-// Возвращаем пользователя по id
-router.get('/users/:id', celebrate({
-  body: Joi.object().keys({
-    id: Joi.string().required().length(24).hex(),
+usersRouter.patch(
+  '/users/me',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+    }),
   }),
-}), getUserID);
+  updateCurrentUser,
+);
 
-// Обновляем профиль
-router.patch('/users/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
+usersRouter.patch(
+  '/users/me/avatar',
+  celebrate({
+    body: Joi.object().keys({
+      avatar: Joi.string().required()
+        .regex(/^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/),
+    }),
   }),
-}), updateUser);
+  updateAvatar,
+);
 
-// Обновляем аватар
-router.patch('/users/me/avatar', celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().required()
-      .pattern(
-        /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/,
-      ),
+usersRouter.get(
+  '/users/:id',
+  celebrate({
+    params: Joi.object().keys({
+      id: Joi.string().required().hex().min(24)
+        .max(24),
+    }),
   }),
-}), updateAvatar);
+  getUserById,
+);
 
-module.exports = router;
+module.exports = usersRouter;

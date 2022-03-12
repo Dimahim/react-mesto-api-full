@@ -1,5 +1,3 @@
-// Данные уже существуют.
-
 class ConflictError extends Error {
   constructor(message) {
     super(message);
